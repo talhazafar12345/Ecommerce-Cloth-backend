@@ -30,7 +30,16 @@ quantity:Number,
 totalPrice:String,
 })
 
+
+const adminSchema = new mongoose.Schema({
+email:String,
+password:String,
+
+})
+
 const Data = mongoose.model("Data",orderSchema)
+const Admin = mongoose.model("Admin",adminSchema)
+
 app.post("/submit-data",async(req,res)=>{
 try{
 const {orderData} = req.body
@@ -40,15 +49,66 @@ const response = getData.save()
 console.log(response)
 res.status(200).json({success:true,message:"Order received successfully",orderNumber:orderNumber})
 }
-
 catch(error){
 console.log(error)
 res.status(400).json({succrss:true,message:"Error"})
 }
 })
 
+app.post("/admin-data",async(req,res)=>{
+
+try{
+const {form} = req.body
+
+const existing = await Admin.findOne({
+email:form.email,
+password:form.password
+})
+if(existing){
+res.status(200).json({success:true,message:"Go to dashboard"})
+return
+}
+else{
+res.status(400).json({success:false,message:"only for admins"})
+return
+}
+const getData = new Admin({...form})
+const response = getData.save()
+console.log(response)
+res.status(200).json({success:true,message:"Data saved successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:true,message:"Error"})
+
+}
+})
 
 
+app.post("/change-password",async(req,res)=>{
+
+try{
+const {email,newPassword,confirmPassword} = req.body
+const user = await Admin.findOne ({email})
+
+if(!user){
+return res.status(400).json({success:false,message:"Details not found"})
+}
+if(!newPassword || !confirmPassword){
+return res.status(400).json({success:false,message:"Please enter passwords"})
+}
+if(newPassword !== confirmPassword){
+return res.status(400).json({success:false,message:"Passwords are mot match"})
+}
+user.password = newPassword
+await user.save()
+res.status(200).json({success:true,message:"Password change successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
 const Port = process.env.PORT || 5000
 app.listen(Port,()=>{
 console.log(`Server is running on Port ${Port}`)
