@@ -30,15 +30,28 @@ quantity:Number,
 totalPrice:String,
 })
 
-
 const adminSchema = new mongoose.Schema({
 email:String,
 password:String,
+})
+
+const CategorySchema= new mongoose.Schema({
+category:String,
+image:String,
+status:String,
 
 })
 
+
+
+
+
+
+
+
 const Data = mongoose.model("Data",orderSchema)
 const Admin = mongoose.model("Admin",adminSchema)
+const Category = mongoose.model("Category",CategorySchema)
 
 app.post("/submit-data",async(req,res)=>{
 try{
@@ -109,6 +122,105 @@ console.log(error)
 res.status(400).json({success:false,message:"Error"})
 }
 })
+
+
+app.post("/categories",async(req,res)=>{
+try{
+const {newCategory} = req.body
+const getData = new Category({...newCategory})
+const response = await getData.save()
+console.log(response)
+res.status(200).json({success:true,message:"Category saved successfully",response})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,messaage:"Error"})
+}
+})
+
+
+app.put("/categories/:id",async(req,res)=>{
+
+try{
+const {status} = req.body
+const getData = await Category.findByIdAndUpdate(
+req.params.id,{
+status:status,
+},
+{
+new:true
+}
+)
+res.status(200).json({success:true,message:"Status change successfully"})
+}
+
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}})
+
+
+app.get("/categories/all",async(req,res)=>{
+
+try{
+ const response = await Category.find()
+ console.log(response)
+ res.status(200).json({success:true,data:response})
+
+}
+catch(error){
+res.status(400).json({success:false,message:"Error"})
+}
+})
+
+
+app.put("/categor/:id",async(req,res)=>{
+
+try{
+const getData = await Category.findByIdAndUpdate(
+req.params.id,{
+category:req.body.category,
+image:req.body.image,
+}
+)
+res.status(200).json({success:true,message:"Category edit successfully",data:getData})
+}
+
+catch(error){
+console.log(error)
+res.status(400).json({success:true,message:"Error"})
+}
+})
+
+
+app.delete("/cate/:id",async(req,res)=>{
+try{
+const getData= await Category.findByIdAndDelete(
+req.params.id
+)
+res.status(200).json({success:true,message:"Category deleted successfully"})
+}
+
+catch(error){
+console.log(error)
+res.status(400).kson({success:false,message:"Error"})
+}
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const Port = process.env.PORT || 5000
 app.listen(Port,()=>{
 console.log(`Server is running on Port ${Port}`)
