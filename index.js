@@ -47,6 +47,14 @@ status:String,
 })
 
 
+const productSchema= new mongoose.Schema({
+image:String,
+name:String,
+status:String,
+
+})
+
+
 
 
 
@@ -56,6 +64,7 @@ status:String,
 const Data = mongoose.model("Data",orderSchema)
 const Admin = mongoose.model("Admin",adminSchema)
 const Category = mongoose.model("Category",CategorySchema)
+const Products = mongoose.model("Products",productSchema)
 
 app.post("/submit-data",async(req,res)=>{
 try{
@@ -263,21 +272,84 @@ res.status(400).json({success:false,message:"Error"})
 
 
 
+app.post("/products",async(req,res)=>{
+try{
+const {product} = req.body
+const getData = new Products({...product})
+const response = await getData.save()
+console.log(response)
+res.status(200).json({success:true,message:"Product saved successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
 
 
+app.get("/products/all",async(req,res)=>{
+try{
+const response = await Products.find()
+res.status(200).json({success:true,data:response})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"error"})
+}
+})
 
 
+app.put("/status/:id",async(req,res)=>{
 
 
+try{
+const {status} = req.body
+const getData = await Products.findByIdAndUpdate(
+req.params.id,{
+status:status
+},
+{
+new:true
+}
+)
+res.status(200).json({success:true,message:"Status changed successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"error"})
+}
+})
 
 
+app.put("/pro/:id",async(req,res)=>{
+try{
+const getData = await Products.findByIdAndUpdate(
+req.params.id,{
+name:req.body.name,
+image:req.body.image,
+}
+)
+res.status(200).json({success:true,message:"Products edit successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400),json({success:false,message:"Error"})
+}
+})
 
 
-
-
-
-
-
+app.delete("/products/delete/:id",async(req,res)=>{
+try{
+const getData = await Products.findByIdAndDelete(
+req.params.id
+)
+res.status(200).json({success:true,message:"Products deleted successfully"})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
 
 const Port = process.env.PORT || 5000
 app.listen(Port,()=>{
