@@ -4,8 +4,12 @@ const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
 const app = express()
+const multer = require("multer");
+
 app.use(cors())
 app.use(express.json())
+app.use("/uploads", express.static("uploads"))
+
 mongoose.connect("mongodb+srv://talha241996_db_user:mhkmD26X68rFchEQ@cluster0.2zmeniw.mongodb.net/?appName=Cluster0")
 .then(()=>{
 console.log("MongoDB is connected")
@@ -173,6 +177,28 @@ res.status(400).json({success:false,message:"Error"})
 }
 })
 
+app.get("/categories",async(req,res)=>{
+
+try{
+const getData = await Category.find({
+status:"Active",
+})
+res.status(200).json({success:true,data:getData})
+}
+
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+
+
+
+
+
+
+
+})
+
 
 app.put("/categor/:id",async(req,res)=>{
 
@@ -206,6 +232,38 @@ console.log(error)
 res.status(400).kson({success:false,message:"Error"})
 }
 })
+
+const storage = multer.diskStorage({
+   destination: function (req, file, cb) {
+      cb(null, "uploads/")
+   },
+   filename: function (req, file, cb) {
+      cb(null, Date.now() + "-" + file.originalname)
+   }
+})
+
+const upload = multer({
+   storage: storage
+})
+app.post("/upload", upload.array("image",10), (req,res)=>{
+try{
+if(!req.files || req.files.length===0){
+return res.status(400).json({success:false,message:"images not uploaded"})
+}
+const images = req.files.map((file)=>{
+return `http://localhost:5000/uploads/${file.filename}`
+})
+res.status(200).json({success:true,message:"images uploaded successfully",image:images})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
+
+
+
+
 
 
 
