@@ -371,6 +371,18 @@ res.status(400).json({success:false,message:"Error"})
 })
 
 
+app.get("/product-detail/:id",async(req,res)=>{
+try{
+const response = await Products.findById(req.params.id)
+console.log(response)
+res.status(200).json({success:true,data:response})
+}
+catch(error){
+console.log(error)
+}
+})
+
+
 
 
 
