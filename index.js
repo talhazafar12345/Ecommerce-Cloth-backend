@@ -51,6 +51,12 @@ const productSchema= new mongoose.Schema({
 image:String,
 name:String,
 status:String,
+category:String,
+categoryId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "Category",
+required: true
+},
 
 })
 
@@ -199,13 +205,6 @@ catch(error){
 console.log(error)
 res.status(400).json({success:false,message:"Error"})
 }
-
-
-
-
-
-
-
 })
 
 
@@ -230,10 +229,14 @@ res.status(400).json({success:true,message:"Error"})
 
 app.delete("/cate/:id",async(req,res)=>{
 try{
+
+await Products.deleteMany({
+categoryId: req.params.id,
+})
 const getData= await Category.findByIdAndDelete(
 req.params.id
 )
-res.status(200).json({success:true,message:"Category deleted successfully"})
+res.status(200).json({success:true,message:"Category and its product deleted successfully"})
 }
 
 catch(error){
