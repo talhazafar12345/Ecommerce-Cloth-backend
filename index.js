@@ -50,6 +50,8 @@ status:String,
 const productSchema= new mongoose.Schema({
 image:String,
 name:String,
+newPrice:Number,
+oldPrice:Number,
 status:String,
 category:String,
 categoryId: {
