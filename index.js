@@ -354,6 +354,36 @@ res.status(400).json({success:false,message:"Error"})
 }
 })
 
+
+app.get("/products/:category",async(req,res)=>{
+try{
+const getData = await Products.find({
+category:req.params.category,
+status:"Active",
+}).populate("categoryId")
+const activeProducts= getData.filter((item)=> item.categoryId && item.categoryId.status === "Active")
+res.status(200).json({success:true,data:activeProducts})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const Port = process.env.PORT || 5000
 app.listen(Port,()=>{
 console.log(`Server is running on Port ${Port}`)
