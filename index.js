@@ -28,6 +28,7 @@ cart:[{
 id:String,
 image:String,
 name:String,
+title:String,
 newPrice:Number,
 quantity:Number,
 }],
@@ -440,6 +441,19 @@ app.get("/sales", async (req, res) => {
 
   }
 });
+
+
+app.get("/show-orders",async(req,res)=>{
+try{
+const response = await Data.find()
+console.log(response)
+res.status(200).json({success:true,data:response})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"error"})
+}
+})
 
 
 
