@@ -31,7 +31,7 @@ name:String,
 newPrice:Number,
 quantity:Number,
 }],
-totalPrice:String,
+totalPrice:Number,
 })
 
 const adminSchema = new mongoose.Schema({
@@ -79,7 +79,7 @@ try{
 const {orderData} = req.body
 const orderNumber = "ORD-" + Date.now() + "-" + Math.floor(1000 + Math.random() * 9000)
 const getData = new Data({...orderData,orderNumber})
-const response = getData.save()
+const response = await  getData.save()
 console.log(response)
 res.status(200).json({success:true,message:"Order received successfully",orderNumber:orderNumber})
 }
@@ -385,12 +385,61 @@ console.log(error)
 })
 
 
+app.get("/count-orders",async(req,res)=>{
+try{
+const response = await Data.countDocuments()
+console.log(response)
+res.status(200).json({success:true,data:response})
+}
+catch(error){
+console.log(error)
+res.status(400).json({success:false,message:"Error"})
+}
+})
 
 
+app.get("/orders/revenue", async (req, res) => {
+  try {
+
+    const revenue = await Data.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: "$totalPrice"
+          }
+        }
+      }
+    ]);
+    res.status(200).json({success: true,data: revenue[0]?.totalRevenue || 0});
+  } catch(error) {
+   res.status(500).json({ success:false,message:"error"});
+  }
+});
 
 
+app.get("/sales", async (req, res) => {
+  try {
+    const sales = await Data.aggregate([
+      {
+        $unwind: "$cart"
+      },
+      {
+        $group: {
+          _id: null,
+          totalSales: {
+            $sum: "$cart.quantity"
+          }
+        }
+      }
+    ]);
 
+    res.status(200).json({success: true,data: sales[0]?.totalSales || 0 });
+  } catch(error) {
+    res.status(500).json({ success: false, message: error.message });
 
+  }
+});
 
 
 
