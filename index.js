@@ -108,7 +108,7 @@ res.status(400).json({success:false,message:"only for admins"})
 return
 }
 const getData = new Admin({...form})
-const response = getData.save()
+const response = await getData.save()
 console.log(response)
 res.status(200).json({success:true,message:"Data saved successfully"})
 }
